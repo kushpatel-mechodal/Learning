@@ -12,8 +12,8 @@
 </head>
 
 <body>
-    <div class="container mt-5">
-        <div class="row justify-content-center">
+    <div class="container d-flex justify-content-center align-items-center vh-100">
+        <div class="row justify-content-center w-100">
             <div class="col-md-6">
                 <div class="card shadow">
                     <div class="card-body">
@@ -106,4 +106,5 @@
         });
     </script>
 </body>
+
 </html>
