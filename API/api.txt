@@ -1,0 +1,20 @@
+Api  = application program interface
+
+types of apis
+
+open apis
+partner apis
+
+Rest apis = representational state transfer
+
+json is lightweight data-interchange format
+
+types of rest apis
+GET,POST,PUT,DELETE
+
+rest api headers:
+
+header('content-type: application/json'); //pass which type of data
+header('access-control-allow-method: POST'); //pass the method to be use
+header('access-control-allow-origin: *'); //access the veryone or spefically write the website name
+header('access-control-allow-headers: <header_name>');

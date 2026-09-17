@@ -1,0 +1,32 @@
+AJAX = asyncrounous javascript and xml
+
+use for dyanmic and fast website 
+without page referesh to use the ajax to reload only specific part.
+
+prefer to use jquery becuase minimum write of code to easy for the use in ajax.
+
+implemention of AJAX
+$.ajax({});
+
+$(document).ready(function (){
+    $(id).on(click,function (e){
+        $.ajax({
+            url: page name,
+            type: GET/POST,
+            data: string/array/object, //send the form data to this url file 
+            success: function(data){ //if the successfully complete the operation to return data as a response using success
+                $(id).html(data);
+            }
+        });
+    });
+});
+
+offset calculation 
+
+offset = (page number - 1) * LIMIT;
+
+you can must use ceil function for return the next page number
+
+serialize() = this method can convert form data into string
+
+trigger() = after submit the form clear data to use this method
