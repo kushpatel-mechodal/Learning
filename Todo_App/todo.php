@@ -193,14 +193,14 @@
                                     <td>${todos.description}</td>
                                     <td>
                                         <select class="form-select status-select" data-id = "${todos.id}">
-                                            <option value="Pending" ${todos.status === "Pending" ? "selected" : ""}>Pending</option>
+                                              <option value="Pending" ${todos.status === "Pending" ? "selected" : ""}>Pending</option>
                                             <option value="Completed" ${todos.status === "Completed" ? "selected" : ""}>Completed</option>
                                          </select>
                                     </td>
-                                <td>
-                                    <button class='btn btn-warning btn-sm edit-btn' data-eid = ${todos.id}><i class='bi bi-pencil-square'></i></button>
-                                    <button class='btn btn-danger btn-sm delete-btn' data-id = ${todos.id}><i class='bi bi-trash'></i></button>
-                                </td>
+                                    <td>
+                                        <button class='btn btn-warning btn-sm edit-btn' data-eid = ${todos.id}><i class='bi bi-pencil-square'></i></button>
+                                        <button class='btn btn-danger btn-sm delete-btn' data-id = ${todos.id}><i class='bi bi-trash'></i></button>
+                                    </td>
                             </tr>`;
                         });
 
