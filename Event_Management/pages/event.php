@@ -1,3 +1,14 @@
+<?php
+
+session_start();
+
+if($_SESSION["role"] !== "admin"){
+    header("Location: login.php");
+    exit;
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -14,20 +25,17 @@
 <body>
     <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">EMS</a>
+            <a class="navbar-brand" href="#">EMS Admin</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse gap-2" id="navbarNavDropdown">
-                <ul class="navbar-nav">
+                <ul class="navbar-nav mx-auto">
                     <li class="nav-item">
                         <a class="nav-link active" href="event.php">Events</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Categories</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="registration.php">Registrations</a>
+                        <a class="nav-link" href="category.php">Categories</a>
                     </li>
                 </ul>
                 <div class="mt-auto text-end">
@@ -49,9 +57,9 @@
         </div>
 
         <div class="table-responsive">
-            <table class="table text-center table-bordered">
+            <table class="table table-hover table-primary table-bordered text-center align-middle">
 
-                <thead class="table table-primary">
+                <thead class="table table-dark">
                     <tr>
                         <th>id</th>
                         <th>title</th>
@@ -69,16 +77,16 @@
         </div>
     </div>
 
-    <div class="modal fade mt-5" id="editTodoModal">
+    <div class="modal fade mt-5" id="editEventModal">
         <div class="modal-dialog">
-            <div class="modal-content">
+            <div class="modal-content shadow-lg border-0 rounded-3 mt-5 ">
 
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Registrations</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-header bg-primary text-white position-relative">
+                    <h5 class="modal-title w-100 text-center">Edit Event</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
 
-                <div class="modal-body">
+                <div class="modal-body bg-light">
 
                     <input type="hidden" id="edit_id">
 
@@ -150,9 +158,11 @@
                         let output = "";
 
                         $.each(response.data, function(index, event_data) {
+
+                            let serial_no = index + 1;
                             output += `
                             <tr>
-                                <td>${event_data.id}</td>
+                                <td>${serial_no}</td>
                                 <td>${event_data.title}</td>
                                 <td>${event_data.description}</td>
                                 <td>${event_data.start_time}</td>
@@ -223,7 +233,7 @@
                         $("#edit_capacity").val(response.data[0].capacity);
                         $("#edit_register_deadline").val(response.data[0].register_deadline);
 
-                        $("#editTodoModal").modal("show");
+                        $("#editEventModal").modal("show");
                     }
                 });
 
@@ -262,17 +272,17 @@
                     });
                 });
             });
-            $("#logout-btn").on("click", function() {
+            $(document).on("click", "#logout-btn", function() {
 
-                $.ajax({
-                    url: "../api/logout-user.php",
-                    type: "POST",
-                    success: function(response) {
-                        if (response.status) {
+                if (confirm("Are Your sure for logout")) {
+                    $.ajax({
+                        url: "../api/logout-user.php",
+                        type: "POST",
+                        success: function() {
                             window.location.href = "login.php";
                         }
-                    }
-                });
+                    });
+                }
             });
         });
     </script>

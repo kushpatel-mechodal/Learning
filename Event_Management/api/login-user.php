@@ -13,7 +13,7 @@ $response = [];
 $email = $_POST["user_email"];
 $password = $_POST["user_password"];
 
-$sql_login = "SELECT id,email,password FROM users WHERE email='$email'";
+$sql_login = "SELECT id,email,password,role FROM users WHERE email='$email'";
 
 $stmt_login = mysqli_prepare($conn, $sql_login);
 
@@ -25,12 +25,18 @@ $rows = mysqli_fetch_assoc($result);
 
 if ($rows && password_verify($password, $rows["password"])) {
 
-    $_SESSION["id"] = $rows["id"];
-    $_SESSION["email"] = $rows["email"];
+    if ($rows["role"] !== "admin") {
+        http_response_code(403);
+        $response = ["message" => "Access Denied only admin can access", "status" => false];
+        
+    } else {
+        $_SESSION["id"] = $rows["id"];
+        $_SESSION["email"] = $rows["email"];
+        $_SESSION["role"] = $rows["role"];
 
-    http_response_code(200);
-    $response = ["message" => "Login successfully", "status" => true];
-
+        http_response_code(200);
+        $response = ["message" => "Login successfully", "status" => true];
+    }
 } else {
 
     http_response_code(401);

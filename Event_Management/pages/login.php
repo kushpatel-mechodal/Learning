@@ -18,7 +18,7 @@
                 <div class="card shadow">
                     <div class="card-body">
 
-                        <h3 class="text-center mb-4">Login User</h3>
+                        <h3 class="text-center mb-4">EMS Admin Login</h3>
 
                         <div class="toast-container position-fixed top-0 end-0 p-3">
 
@@ -100,6 +100,19 @@
                                 window.location.href = "event.php";
                             }, 2000);
                         }
+                    },
+                    error: function(err) {
+
+                        let response = JSON.parse(err.responseText); //read the error response
+
+                        $("#toastMessage").text(response.message);
+
+                        let errElement = document.getElementById("loginToast");
+                        let toast = new bootstrap.Toast(errElement, {
+                            delay: 2000
+                        });
+
+                        toast.show();
                     }
                 });
             });
