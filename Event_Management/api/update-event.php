@@ -10,6 +10,7 @@ $response = [];
 
 $update_id = $_POST["id"];
 $title = $_POST["update_title"];
+$category_id = $_POST["update_category_id"];
 $description = $_POST["update_description"];
 $start_time = $_POST["update_start_time"];
 $end_time = $_POST["update_end_time"];
@@ -17,7 +18,7 @@ $venus = $_POST["update_venus"];
 $capacity = $_POST["update_capacity"];
 $register_deadline = $_POST["update_register_deadline"];
 
-$sql_update = "UPDATE events SET title='$title', description = '$description', start_time = '$start_time',
+$sql_update = "UPDATE events SET title='$title',category_id='$category_id', description = '$description', start_time = '$start_time',
 end_time = '$end_time',venus = '$venus', capacity = '$capacity', register_deadline = '$register_deadline'
 WHERE id='$update_id'";
 

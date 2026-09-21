@@ -38,7 +38,8 @@ if (!empty($edit_id)) {
         $response = ["message" => "Failed to fetch event data", "status" => false];
     }
 } else {
-    $sql_read = "SELECT * FROM events";
+    $sql_read = "SELECT e.*, c.category_name FROM events e 
+    LEFT JOIN categories c ON e.category_id = c.id";
 
     $stmt_read = mysqli_prepare($conn, $sql_read);
 

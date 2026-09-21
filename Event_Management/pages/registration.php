@@ -74,6 +74,13 @@
                             </div>
 
                             <div class="mb-3">
+                                <label class="form-label">Category Name</label>
+                                <select id="category_id" class="form-select">
+                                    <option value="">Select Category</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
                                 <label for="start-time" class="form-label">Start Time</label>
                                 <input type="datetime-local" class="form-control mb-3" name="start-time" id="start-time" placeholder="Event start time" required>
                             </div>
@@ -124,6 +131,7 @@
 
                 let title = $("#title").val();
                 let description = $("#description").val();
+                let category_id = $("#category_id").val();
                 let venus = $("#venus").val();
                 let start_time = $("#start-time").val();
                 let end_time = $("#end-time").val();
@@ -135,6 +143,7 @@
                     type: "POST",
                     data: {
                         event_title: title,
+                        event_category_id: category_id,
                         event_description: description,
                         event_venus: venus,
                         event_start_time: start_time,
@@ -162,6 +171,27 @@
                     }
                 });
             });
+
+            //load categories
+            function loadCategories() {
+
+                $.ajax({
+                    url: "../api/get-category.php",
+                    type: "GET",
+                    success: function(response) {
+
+                        let output = `<option value="">Select Category</option>`;
+
+                        $.each(response.data, function(index, category) {
+
+                            output += `<option value="${category.id}">${category.category_name}</option>`;
+                        });
+
+                        $("#category_id").html(output);
+                    }
+                });
+            }
+            loadCategories();
         });
     </script>
 </body>

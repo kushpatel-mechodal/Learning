@@ -2,7 +2,7 @@
 
 session_start();
 
-if($_SESSION["role"] !== "admin"){
+if ($_SESSION["role"] !== "admin") {
     header("Location: login.php");
     exit;
 }
@@ -63,6 +63,7 @@ if($_SESSION["role"] !== "admin"){
                     <tr>
                         <th>id</th>
                         <th>title</th>
+                        <th>Category Name</th>
                         <th>Description</th>
                         <th>Start Time</th>
                         <th>End Time</th>
@@ -93,6 +94,13 @@ if($_SESSION["role"] !== "admin"){
                     <div class="mb-3">
                         <label class="form-label">Title</label>
                         <input type="text" id="edit_title" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Category Id</label>
+                        <select id="edit_category_id" class="form-select">
+                            <option value="">Select Category</option>
+                        </select>
                     </div>
 
                     <div class="mb-3">
@@ -164,6 +172,7 @@ if($_SESSION["role"] !== "admin"){
                             <tr>
                                 <td>${serial_no}</td>
                                 <td>${event_data.title}</td>
+                                <td>${event_data.category_name}</td>
                                 <td>${event_data.description}</td>
                                 <td>${event_data.start_time}</td>
                                 <td>${event_data.end_time}</td>
@@ -182,7 +191,26 @@ if($_SESSION["role"] !== "admin"){
             }
 
             loadTableData();
+            loadCategories();
 
+            //load categories
+            function loadCategories() {
+
+                $.ajax({
+                    url: "../api/get-category.php",
+                    type: "GET",
+                    success: function(response) {
+
+                        let output = `<option value = "">Select Category</option>`;
+
+                        $.each(response.data, function(index, category) {
+                            output += `<option value="${category.id}">${category.category_name}</option>`;
+                        });
+
+                        $("#edit_category_id").html(output);
+                    }
+                });
+            }
 
             //delete event
             $(document).on("click", ".delete-btn", function() {
@@ -226,6 +254,7 @@ if($_SESSION["role"] !== "admin"){
 
                         $("#edit_id").val(response.data[0].id);
                         $("#edit_title").val(response.data[0].title);
+                        $("#edit_category_id").val(response.data[0].category_id);
                         $("#edit_description").val(response.data[0].description);
                         $("#edit_start_time").val(response.data[0].start_time);
                         $("#edit_end_time").val(response.data[0].end_time);
@@ -243,6 +272,7 @@ if($_SESSION["role"] !== "admin"){
                     let update_id = $("#edit_id").val();
 
                     let title = $("#edit_title").val();
+                    let category_id = $("#edit_category_id").val();
                     let description = $("#edit_description").val();
                     let start_time = $("#edit_start_time").val();
                     let end_time = $("#edit_end_time").val();
@@ -256,6 +286,7 @@ if($_SESSION["role"] !== "admin"){
                         data: {
                             id: update_id,
                             update_title: title,
+                            update_category_id: category_id,
                             update_description: description,
                             update_start_time: start_time,
                             update_end_time: end_time,
@@ -265,8 +296,9 @@ if($_SESSION["role"] !== "admin"){
                         },
                         success: function(response) {
                             if (response.status) {
-                                $("#editTodoModal").modal("hide");
+                                $("#editEventModal").modal("hide");
                                 loadTableData();
+                                loadCategories();
                             }
                         }
                     });
