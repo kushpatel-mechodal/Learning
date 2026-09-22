@@ -25,18 +25,12 @@ $rows = mysqli_fetch_assoc($result);
 
 if ($rows && password_verify($password, $rows["password"])) {
 
-    if ($rows["role"] !== "admin") {
-        http_response_code(403);
-        $response = ["message" => "Access Denied only admin can access", "status" => false];
-        
-    } else {
-        $_SESSION["id"] = $rows["id"];
-        $_SESSION["email"] = $rows["email"];
-        $_SESSION["role"] = $rows["role"];
+    $_SESSION["id"] = $rows["id"];
+    $_SESSION["email"] = $rows["email"];
+    $_SESSION["role"] = $rows["role"];
 
-        http_response_code(200);
-        $response = ["message" => "Login successfully", "status" => true];
-    }
+    http_response_code(200);
+    $response = ["message" => "Login successfully", "status" => true,"role"=> $rows["role"]];
 } else {
 
     http_response_code(401);

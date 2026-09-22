@@ -12,7 +12,8 @@ $output = [];
 
 if (!empty($edit_id)) {
 
-    $sql_fetch = "SELECT * FROM events WHERE id='$edit_id'";
+    $sql_fetch =  $sql_read = "SELECT e.*, c.category_name FROM events e 
+    LEFT JOIN categories c ON e.category_id = c.id WHERE e.id = '$edit_id'";
 
     $stmt_fetch = mysqli_prepare($conn, $sql_fetch);
 

@@ -84,7 +84,6 @@ if ($action === "create_child") {
         LEFT JOIN districts d ON c.district_id = d.id
         LEFT JOIN talukas t ON c.taluka_id = t.id
         LEFT JOIN schools sc ON c.school_id = sc.id WHERE c.id = '$id'";
-
     } else {
         $sql = "SELECT c.id, c.parent_id,p.name,c.child_name,c.gender,c.state_id,s.state_name,c.district_id,d.district_name,c.taluka_id,t.taluka_name,c.school_id,sc.school_name,c.standard FROM children c
         LEFT JOIN parents p ON c.parent_id = p.id
@@ -116,7 +115,6 @@ if ($action === "create_child") {
         http_response_code(500);
         $response = ["message" => "Failed to Fetch the Data", "status" => false];
     }
-
 } else if ($action === "update_child") {
 
     header("Access-Control-Allow-Methods: PUT,OPTIONS");
@@ -225,4 +223,3 @@ if ($action === "create_child") {
 }
 
 echo json_encode($response);
-?>

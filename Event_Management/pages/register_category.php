@@ -22,10 +22,10 @@
             <div class="collapse navbar-collapse gap-2" id="navbarNavDropdown">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link active" href="event.php">Events</a>
+                        <a class="nav-link active" href="admin/event.php">Events</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="category.php">Categories</a>
+                        <a class="nav-link" href="admin/category.php">Categories</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="registration.php">Registrations</a>
@@ -123,7 +123,7 @@
                         if (response.status) {
 
                             setTimeout(function (){
-                                window.location.href="category.php";
+                                window.location.href="admin/category.php";
                             },1500);
                         }
                     }

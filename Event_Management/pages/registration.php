@@ -21,7 +21,7 @@
             <div class="collapse navbar-collapse gap-2" id="navbarNavDropdown">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link active" href="event.php">Events</a>
+                        <a class="nav-link active" href="admin/event.php">Events</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Categories</a>
@@ -45,7 +45,7 @@
                 <div class="card shadow">
                     <div class="card-body">
 
-                        <h3 class="text-center mb-4">Event Registration</h3>
+                        <h3 class="text-center mb-4">Event</h3>
 
                         <div class="toast-container position-fixed top-0 end-0 p-3">
 
@@ -106,6 +106,11 @@
                             </div>
 
                             <div class="mb-3">
+                                <label for="image" class="form-label">Event Image</label>
+                                <input type="file" class="form-control mb-3" name="image" id="image" required>
+                            </div>
+
+                            <div class="mb-3">
                                 <button type="submit" class="btn btn-primary w-100" name="submit-btn" id="submit-btn">Register Event</button>
                             </div>
                         </form>
@@ -137,20 +142,26 @@
                 let end_time = $("#end-time").val();
                 let capacity = $("#capacity").val();
                 let register_deadline = $("#register-deadline").val();
+                let image = $("#image")[0].files[0];
+
+                let formData = new FormData();
+
+                formData.append("event_title",title);
+                formData.append("event_description",description);
+                formData.append("event_category_id",category_id);
+                formData.append("event_venus",venus);
+                formData.append("event_start_time",start_time);
+                formData.append("event_end_time",end_time);
+                formData.append("event_capacity",capacity);
+                formData.append("event_register_deadline",register_deadline);
+                formData.append("image",image);
 
                 $.ajax({
                     url: "../api/add-event.php",
                     type: "POST",
-                    data: {
-                        event_title: title,
-                        event_category_id: category_id,
-                        event_description: description,
-                        event_venus: venus,
-                        event_start_time: start_time,
-                        event_end_time: end_time,
-                        event_capacity: capacity,
-                        event_register_deadline: register_deadline
-                    },
+                    data:formData,
+                    processData: false,
+                    contentType: false,
                     success: function(response) {
 
                         $("#toastMessage").text(response.message);
@@ -165,7 +176,7 @@
 
                         if (response.status) {
                             setTimeout(function() {
-                                window.location.href = "event.php"
+                                window.location.href = "admin/event.php"
                             }, 2000);
                         }
                     }
@@ -192,6 +203,19 @@
                 });
             }
             loadCategories();
+
+            // Logout
+            $(document).on("click", "#logout-btn", function() {
+                if (confirm("Are you sure for logout?")) {
+                    $.ajax({
+                        url: "../api/logout-user.php",
+                        type: "POST",
+                        success: function() {
+                            window.location.href = "login.php";
+                        }
+                    });
+                }
+            });
         });
     </script>
 </body>

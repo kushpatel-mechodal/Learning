@@ -18,7 +18,7 @@
                 <div class="card shadow">
                     <div class="card-body">
 
-                        <h3 class="text-center mb-4">EMS Admin Login</h3>
+                        <h3 class="text-center mb-4">EMS Login</h3>
 
                         <div class="toast-container position-fixed top-0 end-0 p-3">
 
@@ -86,6 +86,11 @@
                     },
                     success: function(response) {
 
+                        console.log(response);
+                        console.log("status:", response.status);
+                        console.log("role:", response.role);
+
+
                         $("#toastMessage").text(response.message);
 
                         let toastElement = document.getElementById("loginToast");
@@ -97,7 +102,12 @@
 
                         if (response.status) {
                             setTimeout(function() {
-                                window.location.href = "event.php";
+
+                                if (response.role === "admin") {
+                                    window.location.href = "admin/event.php";
+                                } else if (response.role === "user") {
+                                    window.location.href = "user/user_dashboard.php"
+                                }
                             }, 2000);
                         }
                     },

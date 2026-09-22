@@ -16,23 +16,42 @@ $start_time = $_POST["event_start_time"];
 $end_time = $_POST["event_end_time"];
 $capacity = $_POST["event_capacity"];
 $register_deadline = $_POST["event_register_deadline"];
+$image = $_FILES["image"];
 
-$sql_insert = "INSERT INTO events (title,category_id,description,venus,start_time,end_time,capacity,register_deadline)
-VALUES (?,?,?,?,?,?,?,?)";
+$upload_dir = "./upload/event_images/";
+
+if (!file_exists($upload_dir)) {
+    mkdir($upload_dir, 0777, true);
+}
+
+$orignal_name = pathinfo($image["name"], PATHINFO_FILENAME);
+$orignal_name = preg_replace("/[^A-Za-z0-9_-]/", "_", $orignal_name);
+
+$ext = pathinfo($image["name"], PATHINFO_EXTENSION);
+$file_name = "event_" . $orignal_name . "." . $ext;
+$upload_path = $upload_dir . $file_name;
+
+if (!move_uploaded_file($image["tmp_name"], $upload_path)) {
+    $response = ["message" => "Failed to upload event image", "status" => false];
+    exit;
+}
+$sql_insert = "INSERT INTO events (title,category_id,description,venus,start_time,end_time,capacity,register_deadline,image)
+VALUES (?,?,?,?,?,?,?,?,?)";
 
 $stmt_insert = mysqli_prepare($conn, $sql_insert);
 
 mysqli_stmt_bind_param(
     $stmt_insert,
-    "sissssis",
+    "sissssiss",
     $title,
-    $category_id,   
+    $category_id,
     $description,
     $venus,
     $start_time,
     $end_time,
     $capacity,
-    $register_deadline
+    $register_deadline,
+    $upload_path
 );
 
 if (mysqli_stmt_execute($stmt_insert)) {

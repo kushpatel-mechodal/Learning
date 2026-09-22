@@ -2,8 +2,8 @@
 
 session_start();
 
-if ($_SESSION["role"] !== "admin") {
-    header("Location: login.php");
+if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
+    header("Location: ../login.php");
     exit;
 }
 
@@ -51,7 +51,7 @@ if ($_SESSION["role"] !== "admin") {
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2>Categories</h2>
-            <a href="register_category.php" class="btn btn-primary">+ Add Category</a>
+            <a href="../register_category.php" class="btn btn-primary">+ Add Category</a>
         </div>
 
         <div class="table-responsive">
@@ -101,15 +101,16 @@ if ($_SESSION["role"] !== "admin") {
                 </div>
             </div>
         </div>
+    </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
 
-        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js">
-        </script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js">
+    </script>
 
-        <script type="text/javascript">
+    <script type="text/javascript">
             $(document).ready(function() {
 
 
@@ -118,7 +119,7 @@ if ($_SESSION["role"] !== "admin") {
                 function loadCategoryDate() {
 
                     $.ajax({
-                        url: "../api/get-category.php",
+                        url: "../../api/get-category.php",
                         type: "GET",
                         success: function(response) {
 
@@ -158,7 +159,7 @@ if ($_SESSION["role"] !== "admin") {
                         let delete_btn = this;
 
                         $.ajax({
-                            url: "../api/delete-category.php",
+                            url: "../../api/delete-category.php",
                             type: "POST",
                             data: {
                                 id: delete_id
@@ -181,7 +182,7 @@ if ($_SESSION["role"] !== "admin") {
                     let edit_id = $(this).data("eid");
 
                     $.ajax({
-                        url: "../api/get-category.php",
+                        url: "../../api/get-category.php",
                         type: "GET",
                         data: {
                             id: edit_id
@@ -205,7 +206,7 @@ if ($_SESSION["role"] !== "admin") {
                     let category_status = $("#edit_status").val();
 
                     $.ajax({
-                        url: "../api/update-category.php",
+                        url: "../../api/update-category.php",
                         type: "POST",
                         data: {
                             id: id,
@@ -226,10 +227,10 @@ if ($_SESSION["role"] !== "admin") {
 
                     if (confirm("Are Your sure for logout")) {
                         $.ajax({
-                            url: "../api/logout-user.php",
+                            url: "../../api/logout-user.php",
                             type: "POST",
                             success: function() {
-                                window.location.href = "login.php";
+                                window.location.href = "../login.php";
                             }
                         });
                     }

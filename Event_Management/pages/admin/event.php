@@ -2,8 +2,8 @@
 
 session_start();
 
-if ($_SESSION["role"] !== "admin") {
-    header("Location: login.php");
+if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
+    header("Location: ../login.php");
     exit;
 }
 
@@ -52,7 +52,7 @@ if ($_SESSION["role"] !== "admin") {
         <div class="d-flex justify-content-between align-items-center mb-3">
 
             <h2>Events</h2>
-            <a href="registration.php" class="btn btn-primary">Add Event</a>
+            <a href="../registration.php" class="btn btn-primary">Add Event</a>
 
         </div>
 
@@ -132,6 +132,11 @@ if ($_SESSION["role"] !== "admin") {
                         <label class="form-label">Registration Deadline</label>
                         <input type="date" id="edit_register_deadline" class="form-control">
                     </div>
+
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Event Image</label>
+                        <input type="file" class="form-control mb-3" name="image" id="image" required>
+                    </div>
                 </div>
 
                 <div class="modal-footer">
@@ -158,7 +163,7 @@ if ($_SESSION["role"] !== "admin") {
             function loadTableData() {
 
                 $.ajax({
-                    url: "../api/get-event.php",
+                    url: "../../api/get-event.php",
                     type: "GET",
                     success: function(response) {
                         console.log(response);
@@ -197,7 +202,7 @@ if ($_SESSION["role"] !== "admin") {
             function loadCategories() {
 
                 $.ajax({
-                    url: "../api/get-category.php",
+                    url: "../../api/get-category.php",
                     type: "GET",
                     success: function(response) {
 
@@ -219,7 +224,7 @@ if ($_SESSION["role"] !== "admin") {
                 let delete_btn = this;
 
                 $.ajax({
-                    url: "../api/delete-event.php",
+                    url: "../../api/delete-event.php",
                     type: "POST",
                     data: {
                         id: delete_id
@@ -245,7 +250,7 @@ if ($_SESSION["role"] !== "admin") {
 
                 $.ajax({
 
-                    url: "../api/get-event.php",
+                    url: "../../api/get-event.php",
                     type: "GET",
                     data: {
                         id: edit_id
@@ -267,7 +272,7 @@ if ($_SESSION["role"] !== "admin") {
                 });
 
 
-                $("#updateEvent").on("click", function() {
+                $("#updateEvent").off("click").on("click", function() {
 
                     let update_id = $("#edit_id").val();
 
@@ -279,21 +284,27 @@ if ($_SESSION["role"] !== "admin") {
                     let venus = $("#edit_venus").val();
                     let capacity = $("#edit_capacity").val();
                     let register_deadline = $("#edit_register_deadline").val();
+                    let image = $("#image")[0].files[0];
+
+                    let formData = new FormData();
+
+                    formData.append("event_id", update_id);
+                    formData.append("event_title", title);
+                    formData.append("event_description", description);
+                    formData.append("event_category_id", category_id);
+                    formData.append("event_venus", venus);
+                    formData.append("event_start_time", start_time);
+                    formData.append("event_end_time", end_time);
+                    formData.append("event_capacity", capacity);
+                    formData.append("event_register_deadline", register_deadline);
+                    if (image) { formData.append("image", image); }
 
                     $.ajax({
-                        url: "../api/update-event.php",
+                        url: "../../api/update-event.php",
                         type: "POST",
-                        data: {
-                            id: update_id,
-                            update_title: title,
-                            update_category_id: category_id,
-                            update_description: description,
-                            update_start_time: start_time,
-                            update_end_time: end_time,
-                            update_venus: venus,
-                            update_capacity: capacity,
-                            update_register_deadline: register_deadline
-                        },
+                        data: formData,
+                        processData: false,
+                        contentType: false,
                         success: function(response) {
                             if (response.status) {
                                 $("#editEventModal").modal("hide");
@@ -308,10 +319,10 @@ if ($_SESSION["role"] !== "admin") {
 
                 if (confirm("Are Your sure for logout")) {
                     $.ajax({
-                        url: "../api/logout-user.php",
+                        url: "../../api/logout-user.php",
                         type: "POST",
                         success: function() {
-                            window.location.href = "login.php";
+                            window.location.href = "../login.php";
                         }
                     });
                 }
