@@ -52,8 +52,11 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
         <div class="d-flex justify-content-between align-items-center mb-3">
 
             <h2>Events</h2>
-            <a href="../registration.php" class="btn btn-primary">Add Event</a>
-
+            <button type="button" class="btn btn-primary" id="addEventBtn">
+                <i class="bi bi-plus-lg me-1"></i>
+                Add Event
+            </button>
+            
         </div>
 
         <div class="table-responsive">
@@ -78,70 +81,91 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
         </div>
     </div>
 
-    <div class="modal fade mt-5" id="editEventModal">
-        <div class="modal-dialog">
-            <div class="modal-content shadow-lg border-0 rounded-3 mt-5 ">
+    <div class="modal fade" id="eventModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
 
-                <div class="modal-header bg-primary text-white position-relative">
-                    <h5 class="modal-title w-100 text-center">Edit Event</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="eventModalTitle">
+                        Add Event
+                    </h5>
+
+                    <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal">
+                    </button>
                 </div>
 
-                <div class="modal-body bg-light">
+                <div class="modal-body">
 
-                    <input type="hidden" id="edit_id">
+                    <input type="hidden" id="id">
 
-                    <div class="mb-3">
-                        <label class="form-label">Title</label>
-                        <input type="text" id="edit_title" class="form-control">
-                    </div>
+                    <div class="row g-3">
 
-                    <div class="mb-3">
-                        <label class="form-label">Category Id</label>
-                        <select id="edit_category_id" class="form-select">
-                            <option value="">Select Category</option>
-                        </select>
-                    </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Title</label>
+                            <input type="text" id="title" class="form-control" required>
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea id="edit_description" class="form-control"></textarea>
-                    </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Category</label>
+                            <select id="category_id" class="form-select" required>
+                                <option value="">Select Category</option>
+                            </select>
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Start Time</label>
-                        <input type="datetime-local" id="edit_start_time" class="form-control">
-                    </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Capacity</label>
+                            <input type="number" id="capacity" class="form-control" required>
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">End Time</label>
-                        <input type="datetime-local" id="edit_end_time" class="form-control">
-                    </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Description</label>
+                            <textarea id="description" class="form-control" rows="3" required></textarea>
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Venus</label>
-                        <input type="text" id="edit_venus" class="form-control">
-                    </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Start Time</label>
+                            <input type="datetime-local" id="start_time" class="form-control" required>
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Capacity</label>
-                        <input type="number" id="edit_capacity" class="form-control">
-                    </div>
+                        <div class="col-md-6">
+                            <label class="form-label">End Time</label>
+                            <input type="datetime-local" id="end_time" class="form-control" required>
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Registration Deadline</label>
-                        <input type="date" id="edit_register_deadline" class="form-control">
-                    </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Venue</label>
+                            <input type="text" id="venus" class="form-control" required>
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="image" class="form-label">Event Image</label>
-                        <input type="file" class="form-control mb-3" name="image" id="image" required>
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                Registration Deadline
+                            </label>
+                            <input type="date" id="register_deadline" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">Event Image</label>
+                            <input type="file" id="image" class="form-control" accept="image/*">
+
+                            <small class="text-muted">
+                                Leave empty while editing if you don't want to change the image.
+                            </small>
+                        </div>
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary w-100" id="updateEvent">
-                        Update
+
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button type="button" class="btn btn-primary" id="saveEvent">
+                        <i class="bi bi-plus-lg me-1"></i>
+                        Add Event
                     </button>
                 </div>
             </div>
@@ -149,30 +173,30 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
     </div>
 
 
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js">
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
 
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js">
-    </script>
-
     <script type="text/javascript">
         $(document).ready(function() {
 
-            //get event data
+            // load table data
             function loadTableData() {
 
                 $.ajax({
                     url: "../../api/get-event.php",
                     type: "GET",
+
                     success: function(response) {
+
                         console.log(response);
-
                         let output = "";
-
                         $.each(response.data, function(index, event_data) {
 
                             let serial_no = index + 1;
+
                             output += `
                             <tr>
                                 <td>${serial_no}</td>
@@ -183,9 +207,19 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                                 <td>${event_data.end_time}</td>
                                 <td>${event_data.capacity}</td>
                                 <td>${event_data.register_deadline}</td>
+
                                 <td>
-                                    <button class="btn btn-warning edit-btn" data-eid = ${event_data.id}><i class='bi bi-pencil-square'></i></button>
-                                    <button class="btn btn-danger delete-btn" data-id = ${event_data.id}><i class='bi bi-trash'></i></button>
+                                    <button
+                                        class="btn btn-warning edit-btn"
+                                        data-eid="${event_data.id}">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+
+                                    <button
+                                        class="btn btn-danger delete-btn"
+                                        data-id="${event_data.id}">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
                                 </td>
                             </tr>`;
                         });
@@ -195,8 +229,6 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                 });
             }
 
-            loadTableData();
-            loadCategories();
 
             //load categories
             function loadCategories() {
@@ -204,17 +236,160 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                 $.ajax({
                     url: "../../api/get-category.php",
                     type: "GET",
+
                     success: function(response) {
 
-                        let output = `<option value = "">Select Category</option>`;
+                        let output = `
+                        <option value="">Select Category</option>`;
 
                         $.each(response.data, function(index, category) {
-                            output += `<option value="${category.id}">${category.category_name}</option>`;
+
+                            output += `
+                            <option value="${category.id}">
+                                ${category.category_name}
+                            </option>
+                        `;
                         });
 
-                        $("#edit_category_id").html(output);
+                        $("#category_id").html(output);
                     }
                 });
+            }
+
+
+            // Load data when page opens
+            loadTableData();
+            loadCategories();
+
+            //Add event btn to open modal
+            $(document).on("click", "#addEventBtn", function() {
+
+                // Clear form
+                $("#id").val("");
+                $("#title").val("");
+                $("#description").val("");
+                $("#category_id").val("");
+                $("#start_time").val("");
+                $("#end_time").val("");
+                $("#venus").val("");
+                $("#capacity").val("");
+                $("#register_deadline").val("");
+                $("#image").val("");
+                $("#eventModalTitle").text("Add Event");
+                $("#saveEvent").html(`
+                <i class="bi bi-plus-lg me-1"></i>
+                Add Event
+            `);
+                $("#eventModal").modal("show");
+            });
+
+            // Same button can handles ADD + UPDATE
+
+            $(document).on("click", "#saveEvent", function() {
+
+                let event_id = $("#id").val();
+
+                let title = $("#title").val();
+                let description = $("#description").val();
+                let category_id = $("#category_id").val();
+                let venus = $("#venus").val();
+                let start_time = $("#start_time").val();
+                let end_time = $("#end_time").val();
+                let capacity = $("#capacity").val();
+                let register_deadline = $("#register_deadline").val();
+                let image = $("#image")[0].files[0];
+
+                let formData = new FormData();
+
+                formData.append("event_title", title);
+                formData.append("event_description", description);
+                formData.append("event_category_id", category_id);
+                formData.append("event_venus", venus);
+                formData.append("event_start_time", start_time);
+                formData.append("event_end_time", end_time);
+                formData.append("event_capacity", capacity);
+                formData.append("event_register_deadline", register_deadline);
+
+                // Event update if event_id is received
+                if (event_id) {
+
+                    formData.append("event_id", event_id);
+
+                    if (image) {
+                        formData.append("image", image);
+                    }
+
+                    $.ajax({
+
+                        url: "../../api/update-event.php",
+                        type: "POST",
+                        data: formData,
+                        dataType: "json",
+                        processData: false,
+                        contentType: false,
+
+                        success: function(response) {
+
+                            console.log(response);
+                            if (response.status) {
+
+                                $("#eventModal").modal("hide");
+                                loadTableData();
+                                loadCategories();
+                                clearEventForm();
+                            }
+                            alert(response.message);
+                        },
+                    });
+                }
+
+                // Save data
+                else {
+
+                    if (image) {
+                        formData.append("image", image);
+                    }
+
+                    $.ajax({
+
+                        url: "../../api/add-event.php",
+                        type: "POST",
+                        data: formData,
+                        dataType: "json",
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            console.log(response);
+
+                            if (response.status) {
+                                $("#eventModal").modal("hide");
+                                loadTableData();
+                                clearEventForm();
+                            }
+                            alert(response.message);
+                        },
+                    });
+                }
+            });
+
+            //Clear form
+            function clearEventForm() {
+
+                $("#id").val("");
+                $("#title").val("");
+                $("#description").val("");
+                $("#category_id").val("");
+                $("#start_time").val("");
+                $("#end_time").val("");
+                $("#venus").val("");
+                $("#capacity").val("");
+                $("#register_deadline").val("");
+                $("#image").val("");
+                $("#eventModalTitle").text("Add Event");
+                $("#saveEvent").html(`
+                <i class="bi bi-plus-lg me-1"></i>
+                Add Event
+            `);
             }
 
             //delete event
@@ -224,12 +399,17 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                 let delete_btn = this;
 
                 $.ajax({
+
                     url: "../../api/delete-event.php",
                     type: "POST",
+
                     data: {
                         id: delete_id
                     },
+
                     success: function(response) {
+
+                        console.log(response);
 
                         if (response.status) {
 
@@ -238,95 +418,86 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                                 loadTableData();
                             });
                         }
+                        alert(response.message);
+                    },
+
+                    error: function(xhr) {
+                        console.log(xhr.responseText);
                     }
                 });
             });
 
-            //edit data
 
+            // edit event modal open
             $(document).on("click", ".edit-btn", function() {
 
-                let edit_id = $(this).data("eid");
+                let id = $(this).data("eid");
 
                 $.ajax({
 
                     url: "../../api/get-event.php",
                     type: "GET",
                     data: {
-                        id: edit_id
+                        id: id
                     },
                     success: function(response) {
 
-                        $("#edit_id").val(response.data[0].id);
-                        $("#edit_title").val(response.data[0].title);
-                        $("#edit_category_id").val(response.data[0].category_id);
-                        $("#edit_description").val(response.data[0].description);
-                        $("#edit_start_time").val(response.data[0].start_time);
-                        $("#edit_end_time").val(response.data[0].end_time);
-                        $("#edit_venus").val(response.data[0].venus);
-                        $("#edit_capacity").val(response.data[0].capacity);
-                        $("#edit_register_deadline").val(response.data[0].register_deadline);
+                        console.log(response);
 
-                        $("#editEventModal").modal("show");
+                        if (response.status && response.data.length > 0) {
+                            let event_data = response.data[0];
+
+                            $("#id").val(event_data.id);
+                            $("#title").val(event_data.title);
+                            $("#category_id").val(event_data.category_id);
+                            $("#description").val(event_data.description);
+                            $("#start_time").val(event_data.start_time);
+                            $("#end_time").val(event_data.end_time);
+                            $("#venus").val(event_data.venus);
+                            $("#capacity").val(event_data.capacity);
+                            $("#register_deadline").val(
+                                event_data.register_deadline
+                            );
+
+                            $("#image").val("");
+
+                            $("#eventModalTitle").text("Edit Event");
+
+                            $("#saveEvent").html(`
+                            <i class="bi bi-pencil-square me-1"></i>
+                            Update Event
+                        `);
+
+                            // Open same modal
+                            $("#eventModal").modal("show");
+                        }
+                    },
+
+                    error: function(xhr) {
+                        console.log(xhr.responseText);
                     }
                 });
 
-
-                $("#updateEvent").off("click").on("click", function() {
-
-                    let update_id = $("#edit_id").val();
-
-                    let title = $("#edit_title").val();
-                    let category_id = $("#edit_category_id").val();
-                    let description = $("#edit_description").val();
-                    let start_time = $("#edit_start_time").val();
-                    let end_time = $("#edit_end_time").val();
-                    let venus = $("#edit_venus").val();
-                    let capacity = $("#edit_capacity").val();
-                    let register_deadline = $("#edit_register_deadline").val();
-                    let image = $("#image")[0].files[0];
-
-                    let formData = new FormData();
-
-                    formData.append("event_id", update_id);
-                    formData.append("event_title", title);
-                    formData.append("event_description", description);
-                    formData.append("event_category_id", category_id);
-                    formData.append("event_venus", venus);
-                    formData.append("event_start_time", start_time);
-                    formData.append("event_end_time", end_time);
-                    formData.append("event_capacity", capacity);
-                    formData.append("event_register_deadline", register_deadline);
-                    if (image) { formData.append("image", image); }
-
-                    $.ajax({
-                        url: "../../api/update-event.php",
-                        type: "POST",
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        success: function(response) {
-                            if (response.status) {
-                                $("#editEventModal").modal("hide");
-                                loadTableData();
-                                loadCategories();
-                            }
-                        }
-                    });
-                });
             });
-            $(document).on("click", "#logout-btn", function() {
 
-                if (confirm("Are Your sure for logout")) {
+            $(document).on("click", "#logout-btn", function() {
+                if (confirm("Are You sure you want to logout?")) {
+
                     $.ajax({
+
                         url: "../../api/logout-user.php",
                         type: "POST",
                         success: function() {
                             window.location.href = "../login.php";
+                        },
+                        error: function(xhr) {
+                            console.log(xhr.responseText);
                         }
                     });
                 }
+
             });
+
         });
     </script>
 </body>

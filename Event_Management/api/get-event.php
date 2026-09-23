@@ -12,10 +12,11 @@ $output = [];
 
 if (!empty($edit_id)) {
 
-    $sql_fetch =  $sql_read = "SELECT e.*, c.category_name FROM events e 
-    LEFT JOIN categories c ON e.category_id = c.id WHERE e.id = '$edit_id'";
+    $sql_fetch = "SELECT e.*, c.category_name FROM events e 
+    LEFT JOIN categories c ON e.category_id = c.id WHERE e.id = ?";
 
     $stmt_fetch = mysqli_prepare($conn, $sql_fetch);
+    mysqli_stmt_bind_param($stmt_fetch, "i", $edit_id);
 
     if (mysqli_stmt_execute($stmt_fetch)) {
 
@@ -24,12 +25,10 @@ if (!empty($edit_id)) {
         if (mysqli_num_rows($res_fetch) > 0) {
 
             while ($rows = mysqli_fetch_assoc($res_fetch)) {
-
                 $output[] = $rows;
-
-                http_response_code(200);
-                $response = ["message" => "Events data fetch successfully", "status" => true, "data" => $output];
             }
+            http_response_code(200);
+            $response = ["message" => "Events data fetch successfully", "status" => true, "data" => $output];
         } else {
             http_response_code(404);
             $response = ["message" => "Data not found", "status" => false];
@@ -40,29 +39,28 @@ if (!empty($edit_id)) {
     }
 } else {
     $sql_read = "SELECT e.*, c.category_name FROM events e 
-    LEFT JOIN categories c ON e.category_id = c.id";
+    LEFT JOIN categories c ON e.category_id = c.id 
+    WHERE e.end_time >= NOW() 
+    ORDER BY e.start_time ASC";
 
     $stmt_read = mysqli_prepare($conn, $sql_read);
 
     if (mysqli_stmt_execute($stmt_read)) {
 
         $result = mysqli_stmt_get_result($stmt_read);
-        
+
         if (mysqli_num_rows($result) > 0) {
 
             while ($rows = mysqli_fetch_assoc($result)) {
-
                 $output[] = $rows;
-
-                http_response_code(200);
-                $response = ["message" => "Events data fetch successfully", "status" => true, "data" => $output];
             }
+            http_response_code(200);
+            $response = ["message" => "Events data fetch successfully", "status" => true, "data" => $output];
         } else {
-            http_response_code(404);
-            $response = ["message" => "Events data not found", "status" => false];
+            http_response_code(200);
+            $response = ["message" => "No events found", "status" => true, "data" => []];
         }
     } else {
-
         http_response_code(500);
         $response = ["message" => "Failed to fetch event data", "status" => false];
     }

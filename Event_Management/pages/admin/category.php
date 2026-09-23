@@ -33,10 +33,10 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
             <div class="collapse navbar-collapse gap-2" id="navbarNavDropdown">
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="event.php">Events</a>
+                        <a class="nav-link" href="event.php">Events</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="category.php">Categories</a>
+                        <a class="nav-link active" href="category.php">Categories</a>
                     </li>
                 </ul>
                 <div class="mt-auto text-end">
@@ -51,14 +51,16 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2>Categories</h2>
-            <a href="../register_category.php" class="btn btn-primary">+ Add Category</a>
+            <button type="button" class="btn btn-primary" id="addCategoryBtn">
+                <i class="bi bi-plus-lg me-1"></i> Add Category
+            </button>
         </div>
 
         <div class="table-responsive">
             <table class="table table-hover table-primary table-bordered text-center align-middle">
                 <thead class="table table-dark">
                     <tr>
-                        <th>Id</th>
+                        <th>Seiral No</th>
                         <th>Category Name</th>
                         <th>Status</th>
                         <th>Action</th>
@@ -70,141 +72,111 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
         </div>
     </div>
 
-    <div class="modal fade mt-5" id="editEventModal">
-        <div class="modal-dialog">
-            <div class="modal-content shadow-lg border-0 rounded-3 mt-5">
-
-                <div class="modal-header  bg-primary text-white position-relative">
-                    <h5 class="modal-title w-100 text-center">Edit Registrations</h5>
+    <!-- Category Modal (Add / Edit) -->
+    <div class="modal fade" id="categoryModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="categoryModalTitle">Add Category</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
-
-                    <input type="hidden" id="edit_id">
+                    <input type="hidden" id="category_id">
 
                     <div class="mb-3">
                         <label class="form-label">Category Name</label>
-                        <input type="text" id="edit_name" class="form-control">
+                        <input type="text" id="category_name" class="form-control" placeholder="Enter category name" required>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Status</label>
-                        <textarea id="edit_status" class="form-control"></textarea>
+                        <input type="text" id="category_status" class="form-control" placeholder="e.g. Active / Inactive" required>
                     </div>
+                </div>
 
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary w-100" id="updateCategory">
-                            Update Category
-                        </button>
-                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveCategoryBtn">
+                        <i class="bi bi-plus-lg me-1"></i> Add Category
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
 
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js">
-    </script>
-
     <script type="text/javascript">
-            $(document).ready(function() {
+        $(document).ready(function() {
 
+            // Load category table data
+            function loadCategoryData() {
+                $.ajax({
+                    url: "../../api/get-category.php",
+                    type: "GET",
+                    success: function(response) {
+                        let output = "";
 
-                //get category data
-
-                function loadCategoryDate() {
-
-                    $.ajax({
-                        url: "../../api/get-category.php",
-                        type: "GET",
-                        success: function(response) {
-
-                            console.log(response);
-                            let output = "";
-
+                        if (response.status && response.data && response.data.length > 0) {
                             $.each(response.data, function(index, category_data) {
-
                                 let serial_no = index + 1;
-
                                 output += `
-                                 <tr>
-                                     <td>${serial_no}</td>
+                                <tr>
+                                    <td>${serial_no}</td>
                                     <td>${category_data.category_name}</td>
-                                     <td>${category_data.status}</td>
-                                     <td>
-                                         <button class="btn btn-warning edit-btn" data-eid = ${category_data.id}><i class='bi bi-pencil-square'></i></button>
-                                        <button class="btn btn-danger delete-btn" data-id = ${category_data.id}><i class='bi bi-trash'></i></button>
+                                    <td>${category_data.status}</td>
+                                    <td>
+                                        <button class="btn btn-warning edit-btn" data-eid="${category_data.id}">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        <button class="btn btn-danger delete-btn" data-id="${category_data.id}">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
                                     </td>
-                                 </tr>`;
+                                </tr>`;
                             });
-
-                            $("#event_category_body").html(output);
                         }
-                    });
-                }
 
-                loadCategoryDate();
-
-                //delete category
-
-                $(document).on("click", ".delete-btn", function() {
-
-                    if (confirm("Are you sure to delete category")) {
-
-                        let delete_id = $(this).data("id");
-                        let delete_btn = this;
-
-                        $.ajax({
-                            url: "../../api/delete-category.php",
-                            type: "POST",
-                            data: {
-                                id: delete_id
-                            },
-                            success: function(response) {
-
-                                if (response.status) {
-                                    $(delete_btn).closest("tr").fadeOut(300, function() {
-                                        $(this).remove();
-                                        loadCategoryDate();
-                                    });
-                                }
-                            }
-                        });
+                        $("#event_category_body").html(output);
                     }
                 });
+            }
 
-                $(document).on("click", ".edit-btn", function() {
+            // Load data when page opens
+            loadCategoryData();
 
-                    let edit_id = $(this).data("eid");
+            // Clear category modal form
+            function clearCategoryForm() {
+                $("#category_id").val("");
+                $("#category_name").val("");
+                $("#category_status").val("");
+                $("#categoryModalTitle").text("Add Category");
+                $("#saveCategoryBtn").html(`<i class="bi bi-plus-lg me-1"></i> Add Category`);
+            }
 
-                    $.ajax({
-                        url: "../../api/get-category.php",
-                        type: "GET",
-                        data: {
-                            id: edit_id
-                        },
-                        success: function(response) {
+            // Open Add Category Modal
+            $(document).on("click", "#addCategoryBtn", function() {
+                clearCategoryForm();
+                $("#categoryModal").modal("show");
+            });
 
-                            $("#edit_id").val(response.data[0].id);
-                            $("#edit_name").val(response.data[0].category_name);
-                            $("#edit_status").val(response.data[0].status);
+            // Save Category (Add or Update)
+            $(document).on("click", "#saveCategoryBtn", function() {
+                let id = $("#category_id").val();
+                let category_name = $("#category_name").val();
+                let category_status = $("#category_status").val();
 
-                            $("#editEventModal").modal("show");
-                        }
-                    });
-                });
+                if (category_name === "" || category_status === "") {
+                    alert("Please fill in all fields.");
+                    return;
+                }
 
-                //update data
-                $(document).on("click", "#updateCategory", function() {
-
-                    let id = $("#edit_id").val();
-                    let category_name = $("#edit_name").val();
-                    let category_status = $("#edit_status").val();
-
+                // Update category if id exists
+                if (id) {
                     $.ajax({
                         url: "../../api/update-category.php",
                         type: "POST",
@@ -213,31 +185,107 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                             category_name: category_name,
                             category_status: category_status
                         },
+                        dataType: "json",
                         success: function(response) {
                             if (response.status) {
-                                $("#editEventModal").modal("hide");
-                                loadCategoryDate();
+                                $("#categoryModal").modal("hide");
+                                loadCategoryData();
+                                clearCategoryForm();
                             }
+                            alert(response.message);
                         }
                     });
-                });
-
-                // Logout
-                $(document).on("click", "#logout-btn", function() {
-
-                    if (confirm("Are Your sure for logout")) {
-                        $.ajax({
-                            url: "../../api/logout-user.php",
-                            type: "POST",
-                            success: function() {
-                                window.location.href = "../login.php";
+                }
+                // Add new category
+                else {
+                    $.ajax({
+                        url: "../../api/add-category.php",
+                        type: "POST",
+                        data: {
+                            category_name: category_name,
+                            category_status: category_status
+                        },
+                        dataType: "json",
+                        success: function(response) {
+                            if (response.status) {
+                                $("#categoryModal").modal("hide");
+                                loadCategoryData();
+                                clearCategoryForm();
                             }
-                        });
+                            alert(response.message);
+                        }
+                    });
+                }
+            });
+
+            // Open Edit Category Modal
+            $(document).on("click", ".edit-btn", function() {
+                let id = $(this).data("eid");
+
+                $.ajax({
+                    url: "../../api/get-category.php",
+                    type: "GET",
+                    data: {
+                        id: id
+                    },
+                    success: function(response) {
+                        if (response.status && response.data.length > 0) {
+                            let category = response.data[0];
+
+                            $("#category_id").val(category.id);
+                            $("#category_name").val(category.category_name);
+                            $("#category_status").val(category.status);
+                            $("#categoryModalTitle").text("Edit Category");
+                            $("#saveCategoryBtn").html(`<i class="bi bi-pencil-square me-1"></i> Update Category`);
+                            $("#categoryModal").modal("show");
+                        }
                     }
                 });
             });
-        </script>
 
+            // Delete Category
+            $(document).on("click", ".delete-btn", function() {
+                if (!confirm("Are you sure you want to delete this category?")) {
+                    return;
+                }
+
+                let delete_id = $(this).data("id");
+                let delete_btn = this;
+
+                $.ajax({
+                    url: "../../api/delete-category.php",
+                    type: "POST",
+                    data: {
+                        id: delete_id
+                    },
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.status) {
+                            $(delete_btn).closest("tr").fadeOut(300, function() {
+                                $(this).remove();
+                                loadCategoryData();
+                            });
+                        }
+                        alert(response.message);
+                    }
+                });
+            });
+
+            // Logout
+            $(document).on("click", "#logout-btn", function() {
+                if (confirm("Are you sure you want to logout?")) {
+                    $.ajax({
+                        url: "../../api/logout-user.php",
+                        type: "POST",
+                        success: function() {
+                            window.location.href = "../login.php";
+                        }
+                    });
+                }
+            });
+
+        });
+    </script>
 </body>
 
 </html>
