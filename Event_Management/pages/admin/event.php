@@ -37,6 +37,9 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                     <li class="nav-item">
                         <a class="nav-link" href="category.php">Categories</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="registrations.php">Registrations</a>
+                    </li>
                 </ul>
                 <div class="mt-auto text-end">
                     <button id="logout-btn" class="btn btn-danger w-100 float-end">
@@ -279,7 +282,7 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                 $("#saveEvent").html(`
                 <i class="bi bi-plus-lg me-1"></i>
                 Add Event
-            `);
+                `);
                 $("#eventModal").modal("show");
             });
 

@@ -52,6 +52,48 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "user") {
         <div class="row" id="eventContainer"></div>
     </div>
 
+    <div class="modal fade" id="register-event-model" index="-1">
+        <div class="modal-dialog modal-modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        Register Event
+                    </h5>
+                </div>
+                <div class="modal-body">
+
+                    <!-- User ID -->
+                    <input type="hidden" id="register_user_id">
+
+                    <!-- Event ID -->
+                    <input type="hidden" id="register_event_id">
+
+                    <div class="mb-3">
+                        <label class="form-label">Phone Number</label>
+
+                        <input
+                            type="text"
+                            id="register_phone"
+                            class="form-control"
+                            placeholder="Enter phone number"
+                            maxlength="10"
+                            required>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button type="button" class="btn btn-primary" id="confirmRegisterEvent">
+                        Confirm Registration
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
@@ -137,12 +179,11 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "user") {
                                                 ${event.capacity}
                                             </div>
 
-                                            <a
-                                                href="event-register.php?id=${event.id}"
-                                                class="btn btn-primary w-100">
-                                                <i class="bi bi-person-plus ms-1"></i>
-                                                Register Event
-                                            </a>
+                                            <button type="button" class="btn btn-primary w-100
+                                            register-event-btn" data-id=${event.id}>
+                                              <i class="bi bi-person-plus ms-1"></i>
+                                              Register Event
+                                            </button>
                                         </div>
                                     </div>
                                 </div>`;
@@ -168,6 +209,48 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "user") {
                 });
             }
             loadEvent();
+
+            $(document).on("click", ".register-event-btn", function() {
+
+                let event_id = $(this).data("id");
+                $("#register_event_id").val(event_id);
+                $("#register-event-model").modal("show");
+            });
+
+            $(document).on("click", "#confirmRegisterEvent", function() {
+
+                let event_id = $("#register_event_id").val();
+                let phone = $("#register_phone").val();
+
+                if (phone === "") {
+                    alert("Phone number required");
+                    exit;
+                }
+
+                $.ajax({
+                    url: "../../api/register-event.php",
+                    type: "POST",
+                    data: {
+                        event_id: event_id,
+                        phone: phone
+                    },
+                    dataType: "JSON",
+                    success: function(response) {
+                        console.log(response);
+
+                        if (response.status) {
+
+                            $("#register-event-model").modal("hide");
+                            $("register_phone").val();
+
+                            alert(response.message);
+                        } else {
+                            alert(response.message);
+                        }
+                    }
+                });
+
+            });
 
             // Logout
             $("#logout-btn").on("click", function() {
