@@ -42,8 +42,27 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="password" class="form-label">password</label>
-                                <input type="password" class="form-control mb-3" name="password" id="password" placeholder="Enter your password" required>
+                                <label for="password" class="form-label">Password</label>
+
+                                <div class="position-relative">
+                                    <input
+                                        type="password"
+                                        class="form-control pe-5"
+                                        name="password"
+                                        id="password"
+                                        placeholder="Enter your password"
+                                        required>
+
+                                    <button
+                                        type="button"
+                                        class="position-absolute top-50 end-0 translate-middle-y border-0 bg-transparent me-2 p-0"
+                                        id="togglePassword"
+                                        style="width: 30px; height: 30px;">
+
+                                        <i class="bi bi-eye"></i>
+
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="mb-3">
@@ -125,6 +144,25 @@
                         toast.show();
                     }
                 });
+            });
+
+            $("#togglePassword").on("click", function() {
+
+                let password = $("#password");
+                let icon = $(this).find("i"); //use find function for search element
+
+                if (password.attr("type") === "password") {
+
+                    password.attr("type", "text"); //visible the password
+
+                    icon.removeClass("bi-eye");
+                    icon.addClass("bi-eye-slash");
+                } else {
+                    password.attr("type", "password"); //hide the password
+
+                    icon.removeClass("bi-eye-slash");
+                    icon.addClass("bi-eye");
+                }
             });
         });
     </script>

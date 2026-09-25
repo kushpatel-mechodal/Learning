@@ -59,7 +59,7 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                 <i class="bi bi-plus-lg me-1"></i>
                 Add Event
             </button>
-            
+
         </div>
 
         <div class="table-responsive">
@@ -158,7 +158,10 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                             </small>
                         </div>
                     </div>
+
+
                 </div>
+
 
                 <div class="modal-footer">
 
@@ -169,6 +172,72 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                     <button type="button" class="btn btn-primary" id="saveEvent">
                         <i class="bi bi-plus-lg me-1"></i>
                         Add Event
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div> <!-- eventModal END -->
+
+
+    <!-- View Registration Modal -->
+    <div class="modal fade" id="registrationModal" tabindex="-1">
+
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+
+            <div class="modal-content">
+
+                <div class="modal-header bg-primary text-white">
+
+                    <h5 class="modal-title">
+                        Event Registrations
+                    </h5>
+
+                    <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <h5 id="registrationEventTitle"></h5>
+
+                    <div class="mb-3">
+                        <span class="badge bg-primary">
+                            Registered:
+                            <span id="totalRegistrations">0</span>
+                        </span>
+                    </div>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-bordered table-hover text-center align-middle">
+
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="registrationTableBody">
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                        Close
                     </button>
                 </div>
             </div>
@@ -212,6 +281,10 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                                 <td>${event_data.register_deadline}</td>
 
                                 <td>
+
+                                    <button class="btn btn-dark view-btn" data-id="${event_data.id}" data-title="${event_data.title}">
+                                    <i class="bi bi-eye"></i>
+                                    </button>
                                     <button
                                         class="btn btn-warning edit-btn"
                                         data-eid="${event_data.id}">
@@ -284,6 +357,73 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                 Add Event
                 `);
                 $("#eventModal").modal("show");
+            });
+
+            $(document).on("click", ".view-btn", function() {
+
+                let event_id = $(this).data("id");
+                let event_title = $(this).data("title") || "";
+
+                $("#registrationEventTitle").text(event_title ? "Event: " + event_title : "");
+                $("#registrationTableBody").html('<tr><td colspan="5" class="text-center text-muted">Loading...</td></tr>');
+                $("#totalRegistrations").text("0");
+
+                $.ajax({
+
+                    url: "../../api/get-event-registration.php",
+                    type: "GET",
+
+                    data: {
+                        event_id: event_id
+                    },
+
+                    dataType: "json",
+
+                    success: function(response) {
+
+                        let output = "";
+
+                        if (response.status && response.data && response.data.length > 0) {
+
+                            $.each(response.data, function(index, user) {
+
+                                output += `
+                                    <tr>
+                                        <td>${index + 1}</td>
+                                        <td>${user.name}</td>
+                                        <td>${user.email}</td>
+                                        <td>${user.phone}</td>
+                                        <td>${user.status}</td>
+                                    </tr> `;
+                            });
+
+                            $("#registrationTableBody").html(output);
+                            $("#totalRegistrations").text(response.data.length);
+                        } else {
+                            $("#registrationTableBody").html(`
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">No registrations found</td>
+                                </tr>
+                            `);
+                            $("#totalRegistrations").text(0);
+                        }
+
+                        $("#registrationModal").modal("show");
+                    },
+
+                    error: function(err) {
+
+                        // When API returns 404 (Data not found / no registrations)
+
+                        $("#registrationTableBody").html(`
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">No registrations found</td>
+                                </tr>
+                            `);
+                        $("#totalRegistrations").text(0);
+                        $("#registrationModal").modal("show");
+                    }
+                });
             });
 
             // Same button can handles ADD + UPDATE
@@ -398,36 +538,41 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
             //delete event
             $(document).on("click", ".delete-btn", function() {
 
-                let delete_id = $(this).data("id");
-                let delete_btn = this;
+                if (confirm("Are you sure you want to delete this event?")) {
 
-                $.ajax({
+                    let delete_id = $(this).data("id");
+                    let delete_btn = this;
 
-                    url: "../../api/delete-event.php",
-                    type: "POST",
+                    $.ajax({
 
-                    data: {
-                        id: delete_id
-                    },
+                        url: "../../api/delete-event.php",
+                        type: "POST",
+                        dataType: "json",
 
-                    success: function(response) {
+                        data: {
+                            id: delete_id
+                        },
 
-                        console.log(response);
+                        success: function(response) {
 
-                        if (response.status) {
+                            console.log(response);
 
-                            $(delete_btn).closest("tr").fadeOut(300, function() {
-                                $(this).remove();
-                                loadTableData();
-                            });
+                            if (response.status) {
+
+                                $(delete_btn).closest("tr").fadeOut(300, function() {
+                                    $(this).remove();
+                                    loadTableData();
+                                });
+                            }
+                            alert(response.message);
+                        },
+
+                        error: function(err) {
+                            console.log(err.responseText);
                         }
-                        alert(response.message);
-                    },
+                    });
+                }
 
-                    error: function(xhr) {
-                        console.log(xhr.responseText);
-                    }
-                });
             });
 
 
@@ -476,8 +621,8 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                         }
                     },
 
-                    error: function(xhr) {
-                        console.log(xhr.responseText);
+                    error: function(err) {
+                        console.log(err.responseText);
                     }
                 });
 
@@ -493,8 +638,8 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                         success: function() {
                             window.location.href = "../login.php";
                         },
-                        error: function(xhr) {
-                            console.log(xhr.responseText);
+                        error: function(err) {
+                            console.log(err.responseText);
                         }
                     });
                 }

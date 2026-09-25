@@ -213,8 +213,49 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "user") {
             $(document).on("click", ".register-event-btn", function() {
 
                 let event_id = $(this).data("id");
-                $("#register_event_id").val(event_id);
-                $("#register-event-model").modal("show");
+
+                $.ajax({
+                    url: "../../api/check-registration.php",
+                    type: "POST",
+                    data: {
+                        event_id: event_id
+                    },
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.registered) {
+                            alert(response.message || "You have already registered for this event");
+                        } else {
+                            $("#register_event_id").val(event_id);
+                            $("#register_phone").val("");
+                            $("#register-event-model").modal("show");
+                        }
+                    },
+                    error: function(err) {
+                        console.log(err.responseText);
+                        // Fallback check using register-event.php
+                        $.ajax({
+                            url: "../../api/register-event.php",
+                            type: "POST",
+                            data: {
+                                event_id: event_id,
+                                action: "check"
+                            },
+                            dataType: "json",
+                            success: function(res) {
+                                if (res.registered) {
+                                    alert(res.message || "You have already registered for this event");
+                                } else {
+                                    $("#register_event_id").val(event_id);
+                                    $("#register_phone").val("");
+                                    $("#register-event-model").modal("show");
+                                }
+                            },
+                            error: function() {
+                                alert("Failed to check registration status.");
+                            }
+                        });
+                    }
+                });
             });
 
             $(document).on("click", "#confirmRegisterEvent", function() {
@@ -224,7 +265,7 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "user") {
 
                 if (phone === "") {
                     alert("Phone number required");
-                    exit;
+                    return;
                 }
 
                 $.ajax({
@@ -234,19 +275,24 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "user") {
                         event_id: event_id,
                         phone: phone
                     },
-                    dataType: "JSON",
+                    dataType: "json",
                     success: function(response) {
                         console.log(response);
 
                         if (response.status) {
 
                             $("#register-event-model").modal("hide");
-                            $("register_phone").val();
+                            $("#register_phone").val("");
 
                             alert(response.message);
                         } else {
+                            $("#register-event-model").modal("hide");
                             alert(response.message);
                         }
+                    },
+                    error: function(err) {
+                        console.log(err.responseText);
+                        alert("Failed to register for event");
                     }
                 });
 

@@ -28,6 +28,37 @@ if (empty($event_id)) {
     exit;
 }
 
+// If checking registration status before opening modal
+if (isset($_POST["action"]) && $_POST["action"] === "check") {
+
+    $sql_check = "SELECT id, status FROM register_events WHERE user_id = ? AND event_id = ?";
+
+    $stmt_check = mysqli_prepare($conn, $sql_check);
+
+    mysqli_stmt_bind_param($stmt_check, "ii", $user_id, $event_id);
+
+    if (mysqli_stmt_execute($stmt_check)) {
+
+        $res_check = mysqli_stmt_get_result($stmt_check);
+
+        if (mysqli_num_rows($res_check) > 0) {
+            echo json_encode([
+                "status" => true,
+                "registered" => true,
+                "message" => "You have already registered for this event"
+            ]);
+            exit;
+        } else {
+            echo json_encode([
+                "status" => true,
+                "registered" => false,
+                "message" => "Not registered"
+            ]);
+            exit;
+        }
+    }
+}
+
 if (empty($phone)) {
     echo json_encode([
         "status" => false,
@@ -35,7 +66,6 @@ if (empty($phone)) {
     ]);
     exit;
 }
-
 
 $sql_insert = "INSERT INTO register_events (event_id,user_id,phone,status) VALUES (?,?,?,'pending')";
 

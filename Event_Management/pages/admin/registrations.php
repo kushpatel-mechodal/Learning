@@ -119,6 +119,32 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
 
                         $.each(response.data, function(index, register_user) {
 
+                            let action = "";
+
+                            //show buttons only when status pending
+                            if (register_user.status === "pending") {
+
+                                action = `
+
+                                 <button
+                                        type="button"
+                                        class="btn btn-success btn-sm approve-btn" data-id="${register_user.id}">
+                                        <i class="bi bi-check-lg"></i>
+                                        Approve
+                                    </button>
+
+                                    <button
+                                        type="button" class="btn btn-danger btn-sm reject-btn"
+                                        data-id="${register_user.id}">
+                                        <i class="bi bi-x-lg"></i>
+                                        Reject
+                                    </button>
+                                `;
+                            } else {
+
+                                action = "";
+                            }
+
                             output += `
 
                              <tr>
@@ -152,20 +178,7 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                                 </td>
 
                                 <td>
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-success btn-sm approve-btn" data-id="${register_user.id}">
-                                        <i class="bi bi-check-lg"></i>
-                                        Approve
-                                    </button>
-
-                                    <button
-                                        type="button" class="btn btn-danger btn-sm reject-btn"
-                                        data-id="${register_user.id}">
-                                        <i class="bi bi-x-lg"></i>
-                                        Reject
-                                    </button>
+                                    ${action}
                                 </td>
                             </tr>`;
                         });
@@ -180,7 +193,7 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
             $(document).on("click", ".approve-btn", function() {
 
                 let id = $(this).data("id");
-
+                let button = $(this);
                 $.ajax({
                     url: "../../api/update-register-status.php",
                     type: "POST",
@@ -204,7 +217,7 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
             $(document).on("click", ".reject-btn", function() {
 
                 let id = $(this).data("id");
-
+                let button = $(this);
                 $.ajax({
                     url: "../../api/update-register-status.php",
                     type: "POST",
@@ -216,6 +229,7 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                     success: function(response) {
 
                         if (response.status) {
+
                             lodaRegisterData();
                         } else {
                             alert(response.message)
