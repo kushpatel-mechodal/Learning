@@ -67,15 +67,15 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
 
                 <thead class="table table-dark">
                     <tr>
-                        <th>id</th>
-                        <th>title</th>
+                        <th>ID</th>
+                        <th>Title</th>
                         <th>Category Name</th>
                         <th>Description</th>
-                        <th>Start Time</th>
-                        <th>End Time</th>
+                        <th class="text-nowrap">Start Time</th>
+                        <th class="text-nowrap">End Time</th>
                         <th>Capacity</th>
-                        <th>Register Deadline</th>
-                        <th>Action</th>
+                        <th class="text-nowrap" style="min-width: 130px;">Event Date</th>
+                        <th class="text-nowrap" style="min-width: 140px;">Action</th>
                     </tr>
                 </thead>
 
@@ -144,9 +144,9 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
 
                         <div class="col-md-6">
                             <label class="form-label">
-                                Registration Deadline
+                                Event Date
                             </label>
-                            <input type="date" id="register_deadline" class="form-control" required>
+                            <input type="date" id="event_date" class="form-control" required>
                         </div>
 
                         <div class="col-md-12">
@@ -158,13 +158,9 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                             </small>
                         </div>
                     </div>
-
-
                 </div>
 
-
                 <div class="modal-footer">
-
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         Cancel
                     </button>
@@ -268,34 +264,41 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                         $.each(response.data, function(index, event_data) {
 
                             let serial_no = index + 1;
+                            let eventDateRaw = event_data.event_date || event_data.register_deadline || '';
+                            let eventDate = eventDateRaw ? eventDateRaw.substring(0, 10) : '-';
 
                             output += `
                             <tr>
                                 <td>${serial_no}</td>
-                                <td>${event_data.title}</td>
-                                <td>${event_data.category_name}</td>
+                                <td class="fw-semibold">${event_data.title}</td>
+                                <td>${event_data.category_name || ''}</td>
                                 <td>${event_data.description}</td>
-                                <td>${event_data.start_time}</td>
-                                <td>${event_data.end_time}</td>
+                                <td class="text-nowrap">${event_data.start_time}</td>
+                                <td class="text-nowrap">${event_data.end_time}</td>
                                 <td>${event_data.capacity}</td>
-                                <td>${event_data.register_deadline}</td>
+                                <td class="text-nowrap">
+                                    <span class="badge bg-transparent text-dark border border-dark-subtle px-2 py-1">
+                                        <i class="bi bi-calendar-event text-primary me-1"></i>${eventDate}
+                                    </span>
+                                </td>
 
-                                <td>
+                                <td class="text-nowrap">
+                                    <div class="d-inline-flex justify-content-center align-items-center gap-1">
+                                        <button class="btn btn-dark view-btn" data-id="${event_data.id}" data-title="${event_data.title}">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button
+                                            class="btn btn-warning edit-btn"
+                                            data-eid="${event_data.id}">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
 
-                                    <button class="btn btn-dark view-btn" data-id="${event_data.id}" data-title="${event_data.title}">
-                                    <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button
-                                        class="btn btn-warning edit-btn"
-                                        data-eid="${event_data.id}">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-
-                                    <button
-                                        class="btn btn-danger delete-btn"
-                                        data-id="${event_data.id}">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                        <button
+                                            class="btn btn-danger delete-btn"
+                                            data-id="${event_data.id}">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>`;
                         });
@@ -349,7 +352,7 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                 $("#end_time").val("");
                 $("#venus").val("");
                 $("#capacity").val("");
-                $("#register_deadline").val("");
+                $("#event_date").val("");
                 $("#image").val("");
                 $("#eventModalTitle").text("Add Event");
                 $("#saveEvent").html(`
@@ -439,7 +442,7 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                 let start_time = $("#start_time").val();
                 let end_time = $("#end_time").val();
                 let capacity = $("#capacity").val();
-                let register_deadline = $("#register_deadline").val();
+                let event_date = $("#event_date").val();
                 let image = $("#image")[0].files[0];
 
                 let formData = new FormData();
@@ -451,7 +454,8 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                 formData.append("event_start_time", start_time);
                 formData.append("event_end_time", end_time);
                 formData.append("event_capacity", capacity);
-                formData.append("event_register_deadline", register_deadline);
+                formData.append("event_date", event_date);
+                formData.append("event_register_deadline", event_date);
 
                 // Event update if event_id is received
                 if (event_id) {
@@ -526,7 +530,7 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                 $("#end_time").val("");
                 $("#venus").val("");
                 $("#capacity").val("");
-                $("#register_deadline").val("");
+                $("#event_date").val("");
                 $("#image").val("");
                 $("#eventModalTitle").text("Add Event");
                 $("#saveEvent").html(`
@@ -603,14 +607,9 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "admin") {
                             $("#end_time").val(event_data.end_time);
                             $("#venus").val(event_data.venus);
                             $("#capacity").val(event_data.capacity);
-                            $("#register_deadline").val(
-                                event_data.register_deadline
-                            );
-
+                            $("#event_date").val(event_data.event_date);
                             $("#image").val("");
-
                             $("#eventModalTitle").text("Edit Event");
-
                             $("#saveEvent").html(`
                             <i class="bi bi-pencil-square me-1"></i>
                             Update Event

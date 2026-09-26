@@ -35,7 +35,7 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "user") {
                         <a class="nav-link active" href="user_dashboard.php">Events</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">My Registration</a>
+                        <a class="nav-link" href="my_registrations.php">My Registration</a>
                     </li>
                 </ul>
                 <div class="mt-auto text-end">
@@ -106,24 +106,67 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "user") {
 
             function loadEvent() {
                 $.ajax({
-                    url: "../../api/get-event.php",
+                    url: "../../api/get-event.php?status=active",
                     type: "GET",
                     dataType: "json",
                     success: function(response) {
                         let output = "";
 
-                        let eventImages = [
-                            "../../Image/tech.png",
-                            "../../Image/sports.png"
-                        ];
-
                         if (response.status && response.data && response.data.length > 0) {
                             $.each(response.data, function(index, event) {
+
+                                let status = "";
+
+                                $.each(registration, function(index, item) {
+
+                                    if (item.event_id == event.id) {
+                                        status = item.status; //match status and store in variable
+                                        return false; //stop the each loop
+                                    }
+                                });
+
+                                //dynamic create button based on condition
+                                let button = "";
+                                let statusBadge = "";
+
+                                if (status === "pending") {
+
+                                    statusBadge = `<span class="badge bg-warning text-dark">Pending</span>`;
+
+                                    button = `
+                                        <button type="button" class="btn btn-secondary w-100 disabled">
+                                        Already Applied
+                                        </button>`;
+
+                                } else if (status === "approved") {
+                                    statusBadge = `<span class="badge bg-success">Approved</span>`;
+
+                                    button = `
+                                        <button type="button" class="btn btn-secondary w-100 disabled">
+                                        Already Registred
+                                        </button>`;
+                                } else if (status === "rejected") {
+
+                                    statusBadge = `<span class="badge bg-danger">Rejected</span>`;
+
+                                    button = `
+                                        <button type="button" class="btn btn-primary w-100 register-event-btn" data-id=${event.id}>
+                                        Register Again
+                                        </button>`;
+                                } else {
+                                    statusBadge = `<span class="badge bg-secondary">Not Registered</span>`;
+
+                                    button = `
+                                        <button type="button" class="btn btn-primary w-100 register-event-btn" data-id=${event.id}>
+                                        Register Event
+                                        </button>`;
+                                }
+
                                 // DB ma image path: ./upload/event_images/file.jpg
                                 // pages/user/ thi access: ../../api/upload/event_images/file.jpg
                                 let imgSrc = event.image ?
                                     event.image.replace("./", "../../api/") :
-                                    eventImages[index % eventImages.length];
+                                    "../../Image/sports.png";
 
                                 output += `
                                 <div class="col-md-6 col-lg-4 mb-4">
@@ -135,7 +178,8 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "user") {
                                                 src="${imgSrc}"
                                                 class="card-img-top"
                                                 style="height: 190px; object-fit: cover;"
-                                                alt="Event">
+                                                alt="${event.title}"
+                                                onerror="this.onerror=null; this.src='../../Image/sports.png';">
                                         </div>
 
                                         <div class="card-body">
@@ -155,8 +199,8 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "user") {
                                             </p>
 
                                             <div class="small text-muted mb-2">
-                                                <i class="bi bi-calendar3 text-primary"></i> Registration Deadline: 
-                                                ${event.register_deadline}
+                                                <i class="bi bi-calendar3 text-primary"></i> Event Date: 
+                                                ${(event.event_date || event.register_deadline || '').substring(0, 10)}
                                             </div>
 
                                             <div class="small text-muted mb-2">
@@ -179,11 +223,13 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "user") {
                                                 ${event.capacity}
                                             </div>
 
-                                            <button type="button" class="btn btn-primary w-100
-                                            register-event-btn" data-id=${event.id}>
-                                              <i class="bi bi-person-plus ms-1"></i>
-                                              Register Event
-                                            </button>
+                                            <div class="small text-muted mb-3">
+                                                <i class="bi bi-info-circle text-primary"></i> Register Status: 
+                                                ${statusBadge}
+                                            </div>
+
+                                            ${button}                                          
+                                            
                                         </div>
                                     </div>
                                 </div>`;
@@ -210,6 +256,27 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "user") {
             }
             loadEvent();
 
+            let registration = []; //user for store multiple registration data
+
+            function loadEventRegistration() {
+
+                $.ajax({
+
+                    url: "../../api/get-user-registration.php",
+                    type: "GET",
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.status) {
+
+                            registration = response.data;
+                            console.log(registration);
+                        }
+                        loadEvent();
+                    }
+                });
+            }
+            loadEventRegistration();
+
             $(document).on("click", ".register-event-btn", function() {
 
                 let event_id = $(this).data("id");
@@ -229,31 +296,6 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "user") {
                             $("#register_phone").val("");
                             $("#register-event-model").modal("show");
                         }
-                    },
-                    error: function(err) {
-                        console.log(err.responseText);
-                        // Fallback check using register-event.php
-                        $.ajax({
-                            url: "../../api/register-event.php",
-                            type: "POST",
-                            data: {
-                                event_id: event_id,
-                                action: "check"
-                            },
-                            dataType: "json",
-                            success: function(res) {
-                                if (res.registered) {
-                                    alert(res.message || "You have already registered for this event");
-                                } else {
-                                    $("#register_event_id").val(event_id);
-                                    $("#register_phone").val("");
-                                    $("#register-event-model").modal("show");
-                                }
-                            },
-                            error: function() {
-                                alert("Failed to check registration status.");
-                            }
-                        });
                     }
                 });
             });

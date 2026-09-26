@@ -67,6 +67,46 @@ if (empty($phone)) {
     exit;
 }
 
+// 1. Check event exists & get event capacity
+$sql_event = "SELECT capacity, start_time, end_time FROM events WHERE id = ?";
+
+$stmt_event = mysqli_prepare($conn, $sql_event);
+
+mysqli_stmt_bind_param($stmt_event, "i", $event_id);
+
+mysqli_stmt_execute($stmt_event);
+
+$res_event = mysqli_stmt_get_result($stmt_event);
+
+if (mysqli_num_rows($res_event) === 0) {
+    echo json_encode([
+        "status" => false,
+        "message" => "Event not found"
+    ]);
+    exit;
+}
+
+$event_data = mysqli_fetch_assoc($res_event);
+$capacity = (int)$event_data["capacity"];
+
+//count total registrations
+$sql_count = "SELECT COUNT(*) AS registered_count FROM register_events WHERE event_id = ? AND (status = 'registered' OR status = 'approved' OR status = 'pending')";
+$stmt_count = mysqli_prepare($conn, $sql_count);
+mysqli_stmt_bind_param($stmt_count, "i", $event_id);
+mysqli_stmt_execute($stmt_count);
+$res_count = mysqli_stmt_get_result($stmt_count);
+$row_count = mysqli_fetch_assoc($res_count);
+$registered_count = (int)$row_count["registered_count"];
+
+//Compare register count and capacity 
+if ($registered_count >= $capacity) {
+    echo json_encode([
+        "status" => false,
+        "message" => "Event capacity is full"
+    ]);
+    exit;
+}
+
 $sql_insert = "INSERT INTO register_events (event_id,user_id,phone,status) VALUES (?,?,?,'pending')";
 
 $stmt_insert = mysqli_prepare($conn, $sql_insert);

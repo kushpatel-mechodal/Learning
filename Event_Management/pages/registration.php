@@ -101,8 +101,8 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="register-deadline" class="form-label">register Deadline</label>
-                                <input type="date" class="form-control mb-3" name="register-deadline" id="register-deadline" placeholder="Event register deadline" required>
+                                <label for="event-date" class="form-label">Event Date</label>
+                                <input type="date" class="form-control mb-3" name="event-date" id="event-date" placeholder="Event Date" required>
                             </div>
 
                             <div class="mb-3">
@@ -141,25 +141,26 @@
                 let start_time = $("#start-time").val();
                 let end_time = $("#end-time").val();
                 let capacity = $("#capacity").val();
-                let register_deadline = $("#register-deadline").val();
+                let event_date = $("#event-date").val();
                 let image = $("#image")[0].files[0];
 
                 let formData = new FormData();
 
-                formData.append("event_title",title);
-                formData.append("event_description",description);
-                formData.append("event_category_id",category_id);
-                formData.append("event_venus",venus);
-                formData.append("event_start_time",start_time);
-                formData.append("event_end_time",end_time);
-                formData.append("event_capacity",capacity);
-                formData.append("event_register_deadline",register_deadline);
-                formData.append("image",image);
+                formData.append("event_title", title);
+                formData.append("event_description", description);
+                formData.append("event_category_id", category_id);
+                formData.append("event_venus", venus);
+                formData.append("event_start_time", start_time);
+                formData.append("event_end_time", end_time);
+                formData.append("event_capacity", capacity);
+                formData.append("event_date", event_date);
+                formData.append("event_register_deadline", event_date);
+                formData.append("image", image);
 
                 $.ajax({
                     url: "../api/add-event.php",
                     type: "POST",
-                    data:formData,
+                    data: formData,
                     processData: false,
                     contentType: false,
                     success: function(response) {

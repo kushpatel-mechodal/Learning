@@ -8,6 +8,7 @@ require("../config/connection.php");
 
 $response = [];
 $edit_id = $_GET["id"] ?? '';
+$status = $_GET["status"] ?? '';
 $output = [];
 
 if (!empty($edit_id)) {
@@ -38,10 +39,19 @@ if (!empty($edit_id)) {
         $response = ["message" => "Failed to fetch event data", "status" => false];
     }
 } else {
-    $sql_read = "SELECT e.*, c.category_name FROM events e 
-    LEFT JOIN categories c ON e.category_id = c.id 
-    WHERE e.end_time >= NOW() 
-    ORDER BY e.start_time ASC";
+
+    if ($status === 'active') {
+        $sql_read = "SELECT e.*, c.category_name FROM events e 
+        LEFT JOIN categories c ON e.category_id = c.id 
+        WHERE e.end_time >= NOW() 
+        ORDER BY e.start_time ASC";
+    } else {
+     
+        // Return ALL events including upcoming, active, and expired for complete history
+        $sql_read = "SELECT e.*, c.category_name FROM events e 
+        LEFT JOIN categories c ON e.category_id = c.id 
+        ORDER BY e.start_time ASC";
+    }
 
     $stmt_read = mysqli_prepare($conn, $sql_read);
 

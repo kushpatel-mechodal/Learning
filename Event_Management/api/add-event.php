@@ -15,10 +15,17 @@ $venus = $_POST["event_venus"] ?? '';
 $start_time = $_POST["event_start_time"] ?? '';
 $end_time = $_POST["event_end_time"] ?? '';
 $capacity = $_POST["event_capacity"] ?? '';
-$register_deadline = $_POST["event_register_deadline"] ?? '';
+$event_date = $_POST["event_date"] ?? $_POST["event_register_deadline"] ?? '';
 $image = $_FILES["image"] ?? null;
-
 $upload_path = "";
+
+// Validation using empty() and || operator
+if (empty($title) || empty($category_id) || empty($description) || empty($venus) || empty($start_time) || empty($end_time) || empty($capacity) || empty($event_date)) {
+    http_response_code(400);
+    $response = ["message" => "All fields are required", "status" => false];
+    echo json_encode($response);
+    exit;
+}
 
 if (!empty($image) && isset($image["name"]) && !empty($image["tmp_name"]) && $image["error"] === UPLOAD_ERR_OK) {
     $upload_dir = "./upload/event_images/";
@@ -42,7 +49,7 @@ if (!empty($image) && isset($image["name"]) && !empty($image["tmp_name"]) && $im
     }
 }
 
-$sql_insert = "INSERT INTO events (title,category_id,description,venus,start_time,end_time,capacity,register_deadline,image)
+$sql_insert = "INSERT INTO events (title,category_id,description,venus,start_time,end_time,capacity,event_date,image)
 VALUES (?,?,?,?,?,?,?,?,?)";
 
 $stmt_insert = mysqli_prepare($conn, $sql_insert);
@@ -57,7 +64,7 @@ mysqli_stmt_bind_param(
     $start_time,
     $end_time,
     $capacity,
-    $register_deadline,
+    $event_date,
     $upload_path
 );
 
@@ -66,7 +73,7 @@ if (mysqli_stmt_execute($stmt_insert)) {
     $response = ["message" => "Event Register Successfully", "status" => true];
 } else {
     http_response_code(500);
-    $response = ["message" => "Failed to Register Event", "status" => false, "error" => mysqli_error($conn)];
+    $response = ["message" => "Failed to Register Event", "status" => false];
 }
 
 echo json_encode($response);

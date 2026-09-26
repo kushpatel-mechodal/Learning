@@ -28,14 +28,14 @@ if (empty($event_id)) {
     exit;
 }
 
-$sql_read = "SELECT id, status FROM register_events WHERE user_id = ? AND event_id = ?";
+$sql_read = "SELECT id, status FROM register_events WHERE user_id = ? AND event_id = ? AND status != 'rejected'";
 
 $stmt_read = mysqli_prepare($conn, $sql_read);
 
 mysqli_stmt_bind_param($stmt_read, "ii", $user_id, $event_id);
 
 if (mysqli_stmt_execute($stmt_read)) {
-    
+
     $res_check = mysqli_stmt_get_result($stmt_read);
 
     if (mysqli_num_rows($res_check) > 0) {

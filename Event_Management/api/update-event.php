@@ -16,7 +16,7 @@ $venus            = $_POST["event_venus"] ?? '';
 $start_time       = $_POST["event_start_time"] ?? '';
 $end_time         = $_POST["event_end_time"] ?? '';
 $capacity         = $_POST["event_capacity"] ?? '';
-$register_deadline = $_POST["event_register_deadline"] ?? '';
+$event_date       = $_POST["event_date"] ?? $_POST["event_register_deadline"] ?? '';
 $image            = $_FILES["image"] ?? null;
 
 if (empty($update_id)) {
@@ -28,7 +28,7 @@ if (empty($update_id)) {
 
 // Image upload 
 $upload_path = null;
-$sql_update = "UPDATE events SET title=?, category_id=?, description=?, venus=?, start_time=?, end_time=?, capacity=?, register_deadline=?";
+$sql_update = "UPDATE events SET title=?, category_id=?, description=?, venus=?, start_time=?, end_time=?, capacity=?, event_date=?";
 
 if (!empty($image) && isset($image["name"])) {
 
@@ -49,7 +49,7 @@ if (!empty($image) && isset($image["name"])) {
 
     $stmt_update = mysqli_prepare($conn, $sql_update);
 
-    mysqli_stmt_bind_param($stmt_update, "sissssissi", $title, $category_id, $description, $venus, $start_time, $end_time, $capacity, $register_deadline,$upload_path, $update_id);
+    mysqli_stmt_bind_param($stmt_update, "sissssissi", $title, $category_id, $description, $venus, $start_time, $end_time, $capacity, $event_date, $upload_path, $update_id);
 
     if (!move_uploaded_file($image["tmp_name"], $upload_path)) {
         http_response_code(500);
@@ -62,7 +62,7 @@ if (!empty($image) && isset($image["name"])) {
 
     $stmt_update = mysqli_prepare($conn, $sql_update);
 
-    mysqli_stmt_bind_param($stmt_update, "sissssisi", $title, $category_id, $description, $venus, $start_time, $end_time, $capacity, $register_deadline, $update_id);
+    mysqli_stmt_bind_param($stmt_update, "sissssisi", $title, $category_id, $description, $venus, $start_time, $end_time, $capacity, $event_date, $update_id);
 }
 
 // if image is updated then execute the if condition otherwise execute else condition
